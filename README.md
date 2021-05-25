@@ -2,21 +2,24 @@
 Robot autónomo con tres ruedas que utiliza dos cámaras para hacer un mapeo 3D de interiores.
 
 ## Tabla de contenido
+<img src="https://github.com/nurianavarro/MapBot/blob/main/img/mapbot.png" align="right" width="300" alt="header pic"/>
+
 1. [Descripción](#descripcion)
 2. [Requerimientos](#requerimientos)
-3. [Amazing Contributions](#amazing-contributions)
+3. [Contribuciones asombrosas](#contribuciones-asombrosas)
 4. [Esquema hardware](#esquema-hardware)
 5. [Piezas 3D](#3d)
 6. [Arquitectura Software](#arquitectura-software)
 7. [Algoritmos](#algoritmos)
-8. [Autores](#autores)
+8. [Experimentos realizados](#exprimentos)
+9. [Autores](#autores)
 
 ## Descripción
-Mapbot es un robot de movimiento autónomo de tres ruedas, el cual, mediante dos cámaras, hace un mapeo 3D de su alrededor, con el objetivo de obtener el mapa completo de un recinto.
+Mapbot es un robot de movimiento autónomo de dos ruedas con motor DC y una rueda loca, el cual, mediante dos cámaras, hace un mapeo 3D de su alrededor, con el objetivo de obtener el mapa completo de un recinto.
 
-Para este mapeo, son necesarias dos cámaras. Con las que, conociendo la distancia entre ellas, se pueden calcular distancias y profundidades de forma precisa y poder hacer una reconstrucción 3D sin ambigüedades. Sería la semejanza a la visión humana, donde son necesarios 2 ojos para una correcta visualización del entorno. Con estas cámaras, cada ciertos frames se creará el mapeado 3D del entorno.
+Para este mapeo son necesarias dos cámaras con las que, conociendo la distancia entre ellas, se pueden calcular distancias y profundidades de forma precisa y poder hacer una reconstrucción 3D sin ambigüedades. Sería la semejanza a la visión humana, donde son necesarios dos ojos para una correcta visualización del entorno. Con estas cámaras, cada ciertos frames, se creará el mapeado 3D del entorno.
 
-Para el desplazamiento del robot se usan 2 motores de corriente continua, uno en cada extremo de la base del robot. La velocidad y la dirección de estos motores estarán dominadas por el controlador L298N.
+Para el desplazamiento del robot se usan dos motores de corriente continua, uno en cada extremo de la base trasera del robot. La velocidad y la dirección de estos motores estarán dominadas por el controlador L298N.
 
 
 ## Requerimientos
@@ -31,10 +34,13 @@ Para el desplazamiento del robot se usan 2 motores de corriente continua, uno en
 * Image
 * ImageFilter
 * ImageDraw
+* open3d
 
-## Amazing Contributions
-Este robot, es capaz de realizar desplazamientos completamente autónomos por un recinto nunca visto antes, con un sistema de cámaras en estéreo. Todo esto calculando trayectorias según los puntos extraídos por las cámaras sin colisionar con ningún objeto.
-A este movimiento autónomo, le acompaña un mapeo 3d de todo su entorno, así que, es capaz de generar un archivo con el recinto por el cual se está moviendo en 3d, para poder visualizar este recinto desde un ordenador.
+## Contribuciones asombrosas
+Este robot es capaz de realizar, con un sistema de cámaras en estéreo, desplazamientos completamente autónomos por un recinto nunca visto antes por él. Todo el proceso se realiza calculando trayectorias según los puntos extraídos por las cámaras sin colisionar con ningún objeto.
+
+A este movimiento autónomo le acompaña un mapeo 3D de todo su entorno, por lo que es capaz de generar un archivo con el recinto por el cual se está moviendo en 3D, y así poder visualizar este recinto desde un ordenador.
+
 
 ## Esquema Hardware
 * 1x Arduino Uno Rev3
@@ -51,10 +57,10 @@ Para este proyecto se necesitan varias componentes 3D.
 * El chasis que será la estructura principal del robot a la cual se le unirán los diferentes componentes
 <img src="https://github.com/nurianavarro/MapBot/blob/main/img/chasis.png" width="200" align="center"/>
 
-* Las ruedas para el desplazamiento del robot
+* Las ruedas para hacer posible el desplazamiento del robot
 <img src="https://github.com/nurianavarro/MapBot/blob/main/img/rueda.png" width="200" align="center"/>
 
-* El soporte para las cámaras
+* El soporte para anclar las cámaras
 <img src="https://github.com/nurianavarro/MapBot/blob/main/img/soporte.png" width="200" align="center"/>
 
 * Las cámaras
@@ -72,15 +78,17 @@ Para este proyecto se necesitan varias componentes 3D.
 
 ## Algoritmos
 ### SLAM (Simultaneous Location And Mapping)
-Consiste en que, mediante cámaras, un robot móvil es capaz de desplazarse autónomamente por un recinto nunca visto antes, es decir, sin previo conocimiento de este. Este algoritmo, se basa en escoger diferentes puntos de referencia (landmarks) de las imágenes que va viendo para situarse y localizarse dentro del mapa. Estos, tienen que ser puntos característicos fácilmente reconocibles y que no se puedan confundir ya que serán la base para la orientación del robot. Cuantas más veces vea estos puntos, menos ruido tendrá el movimiento del robot y mejores resultados obtendrán.
+Consiste en el diseño del desplazamiento autónomo de un robot móvil por un recinto nunca visto antes, mediante las fotografías de las cámaras. El algoritmo se basa en escoger diferentes puntos de referencia (landmarks) de las imágenes que recoge para situarse y localizarse dentro del mapa. Los puntos tienen que ser característicos, fácilmente reconocibles y que no se puedan confundir, ya que serán la base para la orientación del robot. Cuantas más veces vea estos puntos, menos ruido tendrá el movimiento del robot y mejores resultados obtendrán.
 
 ### ORB (Oriented FAST and Rotated BRIEF) 
-Para escoger estos puntos, se va a utilizar la técnica de ORB (Oriented FAST and Rotated BRIEF) que es la fusión de los mecanismos FAST para detectar los puntos de referencia y BRIEF para declarar los descriptores de dichos puntos.
-* Primeramente, se ejecuta el algoritmo FAST. Este, primero aplica un filtrado a la imagen para eliminar posibles puntos negros e imperfecciones de la imagen que puedan cogerse erróneamente como keypoints. Para mejorar el rendimiento del programa, ya que es necesaria su ejecución en tiempo real, se ha decidido recorrer la imagen cada 2 píxeles, aunque con ello sea posible la pérdida de algún keypoint mejor. Este recorrido de la imagen se utiliza para determinar qué píxeles son posibles keypoints. Para ello, para cada píxel ‘x’ de la imagen, se coge un círculo de radio 3 de 16 píxeles alrededor de este como en la imagen y un threshold adecuado. De este círculo, se coge la intensidad de los píxeles 1, 5, 9 y 13. Si 3 de ellos satisfacen que son más brillantes que la intensidad del píxel central más el threshold, o más oscuros que la intensidad del píxel central menos el threshold, se coge este píxel como posible punto interesante y se realiza esta comprobación para los 16 píxeles del círculo. Si este criterio se satisface para ‘n’ de estos píxeles (originalmente ‘n’ = 12), se coge este píxel como keypoint. Al finalizar este proceso para toda la imagen, se eliminan aquellos keypoints adyacentes cogiendo siempre aquel con un mayor score, este score sale de la suma de la diferencia absoluta entre los valores de p y los 16 píxeles circundantes.
+Para escoger estos puntos, se va a utilizar la técnica de ORB (Oriented FAST and Rotated BRIEF), que es la fusión de los mecanismos FAST (para detectar los puntos de referencia) y (BRIEF para declarar los descriptores de dichos puntos).
+* Primeramente, se ejecuta el algoritmo FAST. Primero aplica un filtrado a la imagen para eliminar posibles puntos negros e imperfecciones que puedan escogerse erróneamente como keypoints. Para mejorar el rendimiento del programa (ya que es necesaria su ejecución en tiempo real) se ha decidido recorrer la imagen cada 2 píxeles, aunque conlleve la posible pérdida de algún keypoint mejor. El recorrido de la imagen se utiliza para determinar qué píxeles son posibles keypoints. Para ello, para cada píxel ‘x’ de la imagen, se selecciona un círculo de radio 3 de 16 píxeles alrededor de este (como en la imagen) y un threshold adecuado y se guarda la intensidad de los píxeles 1, 5, 9 y 13. Se clasificará un píxel como posible punto interesante en el caso de que 3 de ellos cumplan que son más brillantes que la intensidad del píxel central más el threshold, o más oscuros que la intensidad del píxel central menos el threshold, y se realiza esta comprobación para los 16 píxeles del círculo. Si este criterio se satisface para ‘n’ de estos píxeles (originalmente ‘n’ = 12), se coge este píxel como keypoint. Al finalizar este proceso para toda la imagen se eliminan aquellos keypoints adyacentes, cogiendo siempre aquel con un mayor score (el score se obtiene de la suma de la diferencia absoluta entre los valores de p y los 16 píxeles circundantes).
 <img src="https://github.com/nurianavarro/MapBot/blob/main/img/circulo_bresenham.png" width="250" align="center"/>
 
-* Después de obtener los keypoints, se utiliza BRIEF para asignar descriptores a estos puntos interesantes. BRIEF, es muy sensible al ruido así que se hace un smooth de la imagen. Estos descriptores, son secuencias de 128, 256 o 512 bits y se calculan de forma que, para cada keypoint, se asigna una ventana y se cogen parejas de puntos, dependiendo la longitud del descriptor se cogerán más o menos parejas. Con estas parejas y su intensidad de píxel, si la intensidad del píxel x es menor que la del y, se asignará un 1 a la posición que le corresponda en la cadena de bits. Si la condición se cumple al revés, se asignará un 0.
-* Por último, está la parte de match, con la que gracias a los descriptores calculados con BRIEF, se pueden reconocer los mismos puntos en diferentes imágenes. 
+* Después de obtener los keypoints se utiliza BRIEF para asignar descriptores a estos puntos interesantes. BRIEF es muy sensible al ruido, así que se hace un smooth de la imagen. Estos descriptores son secuencias de 128, 256 o 512 bits y se calculan de forma que, para cada keypoint, se asigna una ventana y se cogen parejas de puntos (dependiendo la longitud del descriptor se cogerán más o menos parejas). Con estas parejas y su intensidad de píxel, si la intensidad del píxel x es menor que la del y, se asignará un 1 a la posición que le corresponda en la cadena de bits. Si la condición se cumple al revés, se asignará un 0.
+* Por último, se realiza el match, donde, gracias a los descriptores calculados con BRIEF, se pueden reconocer los mismos puntos en diferentes imágenes.  
+
+## Experimentos realizados
 
 ## Autores
 * Adrià Gómez Acosta
