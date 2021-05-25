@@ -44,7 +44,7 @@ A este movimiento autónomo, le acompaña un mapeo 3d de todo su entorno, así q
 * 1x Bluetooth
 * 2x Cámaras
 * 1x Fuente Alimentación
-<img src="https://github.com/nurianavarro/MapBot/blob/main/img/hardware.png" width="600" align="center"/>
+<img src="https://github.com/nurianavarro/MapBot/blob/main/img/componentes_hardware.png" width="600" align="center"/>
 
 ## Piezas 3D
 Para este proyecto se necesitan varias componentes 3D.
