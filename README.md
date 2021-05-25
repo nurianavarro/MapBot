@@ -89,6 +89,25 @@ Para escoger estos puntos, se va a utilizar la técnica de ORB (Oriented FAST an
 * Por último, se realiza el match, donde, gracias a los descriptores calculados con BRIEF, se pueden reconocer los mismos puntos en diferentes imágenes.  
 
 ## Experimentos realizados
+A continuación se muestra la escena del Coppelia utilizada. Los objetos a mapear deben ser objetos a los que se les pueda añadir una textura, ya que los algoritmos de estéreo necesitan detalles para poder clasificar que un píxel dee una fotografía es el mismo que otro, así como, si hay zonas planas no hay puntos en los que poder establecer el matching correcto.
+
+<img src="https://github.com/nurianavarro/MapBot/blob/main/img/escena.png" width="300" align="center"/>
+
+Aquí vemos un ejemplo, en el que se muestran las imágenes obtenidas por la visión estéreo, el mapa de disparidad y una imagen del cloud point 3D generado.
+
+**Imágenes obtenidas por las cámaras:**
+
+<img src="https://github.com/nurianavarro/MapBot/blob/main/img/imagen1.png" width="300" align="center"/>
+<img src="https://github.com/nurianavarro/MapBot/blob/main/img/imagen2.png" width="300" align="center"/>
+
+**Mapa de disparidad:**
+
+<img src="https://github.com/nurianavarro/MapBot/blob/main/img/mapa_disparidad.png" width="300" align="center"/>
+
+**Mapa 3D generado:**
+
+<img src="https://github.com/nurianavarro/MapBot/blob/main/img/mapa_3d.png" width="300" align="center"/>
+
 
 ## Autores
 * Adrià Gómez Acosta
